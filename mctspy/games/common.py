@@ -1,10 +1,15 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Any
 
+
 class AbstractGameAction(ABC):
     pass
 
+
 class AbstractGameState(ABC):
+
+    next_to_move: int
+
     @abstractmethod
     def is_game_over(self) -> bool:
         """
@@ -34,7 +39,7 @@ class AbstractGameState(ABC):
         pass
 
     @abstractmethod
-    def move(self, action: AbstractGameAction) -> 'AbstractGameState':
+    def move(self, action: AbstractGameAction) -> "AbstractGameState":
         """
         Applies the given action to the current state and returns the resulting state.
 
@@ -62,10 +67,12 @@ class AbstractGameState(ABC):
         """
         pass
 
+    @abstractmethod
+    def get_reward(self) -> float:
+        pass
+
 
 class TwoPlayersAbstractGameState(AbstractGameState):
-
-    next_to_move: int
 
     @abstractmethod
     def game_result(self) -> Optional[int]:
@@ -83,7 +90,7 @@ class TwoPlayersAbstractGameState(AbstractGameState):
         pass
 
     @abstractmethod
-    def move(self, action: AbstractGameAction) -> 'TwoPlayersAbstractGameState':
+    def move(self, action: AbstractGameAction) -> "TwoPlayersAbstractGameState":
         """
         Applies the given action to the current state and returns the resulting state.
 
