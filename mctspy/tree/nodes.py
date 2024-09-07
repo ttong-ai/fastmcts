@@ -4,6 +4,8 @@ from collections import defaultdict
 from numba import jit
 import numpy as np
 
+from mctspy.games.common import TwoPlayersAbstractGameState
+
 
 class MonteCarloTreeSearchNode(ABC):
     """
@@ -15,14 +17,14 @@ class MonteCarloTreeSearchNode(ABC):
 
     Parameters
     ----------
-    state : object
+    state : TwoPlayersAbstractGameState
         The game state or problem state represented by this node.
     parent : MonteCarloTreeSearchNode, optional
         The parent node in the search tree. None for the root node.
 
     Attributes
     ----------
-    state : object
+    state : TwoPlayersAbstractGameState
         The game state or problem state represented by this node.
     parent : MonteCarloTreeSearchNode or None
         The parent node in the search tree.
@@ -59,15 +61,15 @@ class MonteCarloTreeSearchNode(ABC):
     override other methods if needed.
     """
 
-    def __init__(self, state, parent=None):
+    def __init__(self, state: TwoPlayersAbstractGameState, parent: "MonteCarloTreeSearchNode" = None):
         """
         Parameters
         ----------
         state : mctspy.games.common.TwoPlayersAbstractGameState
         parent : MonteCarloTreeSearchNode
         """
-        self.state = state
-        self.parent = parent
+        self.state: TwoPlayersAbstractGameState = state
+        self.parent: "MonteCarloTreeSearchNode" = parent
         self.children = []
 
     @property
@@ -163,11 +165,14 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
         Updates this node and its ancestors with the result of a simulation.
     """
 
-    def __init__(self, state, parent=None, parent_action=None):
+    def __init__(
+        self, state: TwoPlayersAbstractGameState, parent: MonteCarloTreeSearchNode = None, parent_action=None
+    ):
         super().__init__(state, parent)
         self._number_of_visits = 0.0
         self._results = defaultdict(int)
         self._untried_actions = None
+        self.parent_action = parent_action  # Add this line to store the action that led to this node
 
     @property
     def untried_actions(self):
@@ -188,7 +193,9 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
     def expand(self):
         action = self.untried_actions.pop()
         next_state = self.state.move(action)
-        child_node = TwoPlayersGameMonteCarloTreeSearchNode(next_state, parent=self)
+        child_node = TwoPlayersGameMonteCarloTreeSearchNode(
+            next_state, parent=self, parent_action=action  # Pass the action to the child node
+        )
         self.children.append(child_node)
         return child_node
 
