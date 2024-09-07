@@ -50,4 +50,4 @@ def play_game(simulations_per_move=100):
 
 
 if __name__ == "__main__":
-    play_game(simulations_per_move=100)
+    play_game(simulations_per_move=500)
