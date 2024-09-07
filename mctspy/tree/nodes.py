@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from numba import jit
 import numpy as np
-from typing import cast
+from typing import cast, List, Optional, Dict, Any
 
 from mctspy.games.common import AbstractGameState, TwoPlayersAbstractGameState
 
@@ -167,7 +167,10 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
     """
 
     def __init__(
-        self, state: TwoPlayersAbstractGameState, parent: "TwoPlayersGameMonteCarloTreeSearchNode" = None, parent_action=None
+        self,
+        state: TwoPlayersAbstractGameState,
+        parent: "TwoPlayersGameMonteCarloTreeSearchNode" = None,
+        parent_action=None,
     ):
         super().__init__(state, parent)
         self.state = cast(TwoPlayersAbstractGameState, state)
@@ -218,3 +221,104 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
         self._results[result] += 1.0
         if self.parent:
             self.parent.backpropagate(result)
+
+
+class OptimizedMonteCarloTreeSearchNode:
+    def __init__(
+        self,
+        state: AbstractGameState,
+        parent: Optional["OptimizedMonteCarloTreeSearchNode"] = None,
+        parent_action: Any = None,
+    ):
+        self.state = state
+        self.parent = parent
+        self.parent_action = parent_action
+        self.children: List[OptimizedMonteCarloTreeSearchNode] = []
+        self._number_of_visits = 0
+        self._results: Dict[float, float] = {}  # Using float keys for more general reward structures
+        self._untried_actions: Optional[List[Any]] = None
+
+    @property
+    def untried_actions(self) -> List[Any]:
+        if self._untried_actions is None:
+            self._untried_actions = self.state.get_legal_actions()
+        return self._untried_actions
+
+    @property
+    def q(self) -> float:
+        return sum(self._results.values())
+
+    @property
+    def n(self) -> int:
+        return self._number_of_visits
+
+    def expand(self) -> "OptimizedMonteCarloTreeSearchNode":
+        action = self.untried_actions.pop()
+        next_state = self.state.move(action)
+        child_node = OptimizedMonteCarloTreeSearchNode(next_state, parent=self, parent_action=action)
+        self.children.append(child_node)
+        return child_node
+
+    def is_terminal_node(self) -> bool:
+        return self.state.is_game_over()
+
+    def is_fully_expanded(self) -> bool:
+        return len(self.untried_actions) == 0
+
+    @staticmethod
+    def rollout_policy(possible_moves: List[Any]) -> Any:
+        return possible_moves[np.random.randint(len(possible_moves))]
+
+    def rollout(self) -> float:
+        current_state = self.state
+        while not current_state.is_game_over():
+            possible_moves = current_state.get_legal_actions()
+            action = self.rollout_policy(possible_moves)
+            current_state = current_state.move(action)
+        return current_state.get_reward()
+
+    def backpropagate(self, result: float) -> None:
+        self._number_of_visits += 1
+        self._results[result] = self._results.get(result, 0) + 1
+        if self.parent:
+            self.parent.backpropagate(result)
+
+    @staticmethod
+    @jit(nopython=True)
+    def uct_select(
+        node_total_reward: float, node_visit_count: int, parent_visit_count: int, c_param: float = 1.4
+    ) -> float:
+        return (node_total_reward / node_visit_count) + c_param * np.sqrt(
+            (2 * np.log(parent_visit_count) / node_visit_count)
+        )
+
+    @staticmethod
+    @jit(nopython=True)
+    def _calculate_uct_weights(q_values, n_values, parent_n, c_param):
+        return q_values / n_values + c_param * np.sqrt(2 * np.log(parent_n) / n_values)
+
+    def best_child(self, c_param: float = 1.4) -> "OptimizedMonteCarloTreeSearchNode":
+        q_values = np.array([c.q for c in self.children])
+        n_values = np.array([c.n for c in self.children])
+        weights = self._calculate_uct_weights(q_values, n_values, self.n, c_param)
+        return self.children[np.argmax(weights)]
+
+class OptimizedMCTS:
+    def __init__(self, node: OptimizedMonteCarloTreeSearchNode):
+        self.root = node
+
+    def best_action(self, simulations_number: int) -> OptimizedMonteCarloTreeSearchNode:
+        for _ in range(simulations_number):
+            v = self._tree_policy()
+            reward = v.rollout()
+            v.backpropagate(reward)
+        return self.root.best_child(c_param=0.0)
+
+    def _tree_policy(self) -> OptimizedMonteCarloTreeSearchNode:
+        current_node = self.root
+        while not current_node.is_terminal_node():
+            if not current_node.is_fully_expanded():
+                return current_node.expand()
+            else:
+                current_node = current_node.best_child()
+        return current_node
