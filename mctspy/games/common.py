@@ -62,7 +62,11 @@ class AbstractGameState(ABC):
         """
         pass
 
+
 class TwoPlayersAbstractGameState(AbstractGameState):
+
+    next_to_move: int
+
     @abstractmethod
     def game_result(self) -> Optional[int]:
         """

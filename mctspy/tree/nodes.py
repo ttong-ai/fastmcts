@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from numba import jit
 import numpy as np
+from typing import cast
 
 from mctspy.games.common import AbstractGameState, TwoPlayersAbstractGameState
 
@@ -28,7 +29,7 @@ class MonteCarloTreeSearchNode(ABC):
         The game state or problem state represented by this node.
     parent : MonteCarloTreeSearchNode or None
         The parent node in the search tree.
-    children : list
+    children : list of MonteCarloTreeSearchNode
         List of child nodes.
 
     Methods
@@ -166,9 +167,11 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
     """
 
     def __init__(
-        self, state: TwoPlayersAbstractGameState, parent: MonteCarloTreeSearchNode = None, parent_action=None
+        self, state: TwoPlayersAbstractGameState, parent: "TwoPlayersGameMonteCarloTreeSearchNode" = None, parent_action=None
     ):
         super().__init__(state, parent)
+        self.state = cast(TwoPlayersAbstractGameState, state)
+        self.parent = cast(TwoPlayersGameMonteCarloTreeSearchNode, parent)
         self._number_of_visits = 0.0
         self._results = defaultdict(int)
         self._untried_actions = None
@@ -192,7 +195,7 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
 
     def expand(self):
         action = self.untried_actions.pop()
-        next_state = self.state.move(action)
+        next_state: TwoPlayersAbstractGameState = self.state.move(action)
         child_node = TwoPlayersGameMonteCarloTreeSearchNode(
             next_state, parent=self, parent_action=action  # Pass the action to the child node
         )
