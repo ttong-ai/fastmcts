@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from numba import jit
 import numpy as np
+import random
 from typing import cast, List, Optional, Dict, Any
 
 from mctspy.games.common import AbstractGameState, TwoPlayersAbstractGameState
@@ -235,13 +236,14 @@ class OptimizedMonteCarloTreeSearchNode:
         self.parent_action = parent_action
         self.children: List[OptimizedMonteCarloTreeSearchNode] = []
         self._number_of_visits = 0
-        self._results: Dict[float, float] = {}  # Using float keys for more general reward structures
+        self._results: Dict[float, float] = {}
         self._untried_actions: Optional[List[Any]] = None
 
     @property
     def untried_actions(self) -> List[Any]:
         if self._untried_actions is None:
             self._untried_actions = self.state.get_legal_actions()
+            random.shuffle(self._untried_actions)  # Randomize expansion order
         return self._untried_actions
 
     @property
@@ -267,7 +269,7 @@ class OptimizedMonteCarloTreeSearchNode:
 
     @staticmethod
     def rollout_policy(possible_moves: List[Any]) -> Any:
-        return possible_moves[np.random.randint(len(possible_moves))]
+        return random.choice(possible_moves)  # Use Python's random instead of NumPy
 
     def rollout(self) -> float:
         current_state = self.state
