@@ -111,11 +111,19 @@ class MonteCarloTreeSearchNode(ABC):
     def is_fully_expanded(self):
         return len(self.untried_actions) == 0
 
+    @staticmethod
+    @jit(nopython=True)
+    def _uct_select(node_total_reward, node_visit_count, parent_visit_count, c_param):
+        return (node_total_reward / node_visit_count) + c_param * np.sqrt(
+            (2 * np.log(parent_visit_count) / node_visit_count)
+        )
+
     def best_child(self, c_param=1.4):
-        choices_weights = [(c.q / c.n) + c_param * np.sqrt((2 * np.log(self.n) / c.n)) for c in self.children]
+        choices_weights = [self._uct_select(c.q, c.n, self.n, c_param) for c in self.children]
         return self.children[np.argmax(choices_weights)]
 
-    def rollout_policy(self, possible_moves):
+    @staticmethod
+    def rollout_policy(possible_moves):
         return possible_moves[np.random.randint(len(possible_moves))]
 
 
