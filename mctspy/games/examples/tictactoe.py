@@ -9,11 +9,7 @@ class TicTacToeMove(AbstractGameAction):
         self.value = value
 
     def __repr__(self):
-        return "x:{0} y:{1} v:{2}".format(
-            self.x_coordinate,
-            self.y_coordinate,
-            self.value
-        )
+        return "x:{0} y:{1} v:{2}".format(self.x_coordinate, self.y_coordinate, self.value)
 
 
 class TicTacToeGameState(TwoPlayersAbstractGameState):
@@ -35,17 +31,17 @@ class TicTacToeGameState(TwoPlayersAbstractGameState):
     def game_result(self):
         # check if game is over
         for i in range(self.board_size - self.win + 1):
-            rowsum = np.sum(self.board[i:i+self.win], 0)
-            colsum = np.sum(self.board[:,i:i+self.win], 1)
+            rowsum = np.sum(self.board[i : i + self.win], 0)
+            colsum = np.sum(self.board[:, i : i + self.win], 1)
             if rowsum.max() == self.win or colsum.max() == self.win:
                 return self.x
             if rowsum.min() == -self.win or colsum.min() == -self.win:
                 return self.o
         for i in range(self.board_size - self.win + 1):
             for j in range(self.board_size - self.win + 1):
-                sub = self.board[i:i+self.win,j:j+self.win]
+                sub = self.board[i : i + self.win, j : j + self.win]
                 diag_sum_tl = sub.trace()
-                diag_sum_tr = sub[::-1].trace()        
+                diag_sum_tr = sub[::-1].trace()
                 if diag_sum_tl == self.win or diag_sum_tr == self.win:
                     return self.x
                 if diag_sum_tl == -self.win or diag_sum_tr == -self.win:
@@ -53,7 +49,7 @@ class TicTacToeGameState(TwoPlayersAbstractGameState):
 
         # draw
         if np.all(self.board != 0):
-            return 0.
+            return 0.0
 
         # if not over - no result
         return None
@@ -67,12 +63,12 @@ class TicTacToeGameState(TwoPlayersAbstractGameState):
             return False
 
         # check if inside the board on x-axis
-        x_in_range = (0 <= move.x_coordinate < self.board_size)
+        x_in_range = 0 <= move.x_coordinate < self.board_size
         if not x_in_range:
             return False
 
         # check if inside the board on y-axis
-        y_in_range = (0 <= move.y_coordinate < self.board_size)
+        y_in_range = 0 <= move.y_coordinate < self.board_size
         if not y_in_range:
             return False
 
@@ -81,9 +77,7 @@ class TicTacToeGameState(TwoPlayersAbstractGameState):
 
     def move(self, move):
         if not self.is_move_legal(move):
-            raise ValueError(
-                "move {0} on board {1} is not legal". format(move, self.board)
-            )
+            raise ValueError("move {0} on board {1} is not legal".format(move, self.board))
         new_board = np.copy(self.board)
         new_board[move.x_coordinate, move.y_coordinate] = move.value
         if self.next_to_move == self.x:
@@ -95,6 +89,5 @@ class TicTacToeGameState(TwoPlayersAbstractGameState):
     def get_legal_actions(self):
         indices = np.where(self.board == 0)
         return [
-            TicTacToeMove(coords[0], coords[1], self.next_to_move)
-            for coords in list(zip(indices[0], indices[1]))
+            TicTacToeMove(coords[0], coords[1], self.next_to_move) for coords in list(zip(indices[0], indices[1]))
         ]

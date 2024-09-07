@@ -1,4 +1,7 @@
+# search.py
 import time
+
+
 class MonteCarloTreeSearch(object):
 
     def __init__(self, node):
@@ -26,8 +29,8 @@ class MonteCarloTreeSearch(object):
 
         """
 
-        if simulations_number is None :
-            assert(total_simulation_seconds is not None)
+        if simulations_number is None:
+            assert total_simulation_seconds is not None
             end_time = time.time() + total_simulation_seconds
             while True:
                 v = self._tree_policy()
@@ -35,13 +38,13 @@ class MonteCarloTreeSearch(object):
                 v.backpropagate(reward)
                 if time.time() > end_time:
                     break
-        else :
-            for _ in range(0, simulations_number):            
+        else:
+            for _ in range(0, simulations_number):
                 v = self._tree_policy()
                 reward = v.rollout()
                 v.backpropagate(reward)
         # to select best child go for exploitation only
-        return self.root.best_child(c_param=0.)
+        return self.root.best_child(c_param=0.0)
 
     def _tree_policy(self):
         """

@@ -1,3 +1,4 @@
+# nodes.py
 import numpy as np
 from collections import defaultdict
 from abc import ABC, abstractmethod
@@ -58,13 +59,10 @@ class MonteCarloTreeSearchNode(ABC):
         return len(self.untried_actions) == 0
 
     def best_child(self, c_param=1.4):
-        choices_weights = [
-            (c.q / c.n) + c_param * np.sqrt((2 * np.log(self.n) / c.n))
-            for c in self.children
-        ]
+        choices_weights = [(c.q / c.n) + c_param * np.sqrt((2 * np.log(self.n) / c.n)) for c in self.children]
         return self.children[np.argmax(choices_weights)]
 
-    def rollout_policy(self, possible_moves):        
+    def rollout_policy(self, possible_moves):
         return possible_moves[np.random.randint(len(possible_moves))]
 
 
@@ -72,7 +70,7 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
 
     def __init__(self, state, parent=None):
         super().__init__(state, parent)
-        self._number_of_visits = 0.
+        self._number_of_visits = 0.0
         self._results = defaultdict(int)
         self._untried_actions = None
 
@@ -95,9 +93,7 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
     def expand(self):
         action = self.untried_actions.pop()
         next_state = self.state.move(action)
-        child_node = TwoPlayersGameMonteCarloTreeSearchNode(
-            next_state, parent=self
-        )
+        child_node = TwoPlayersGameMonteCarloTreeSearchNode(next_state, parent=self)
         self.children.append(child_node)
         return child_node
 
@@ -113,7 +109,7 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
         return current_rollout_state.game_result
 
     def backpropagate(self, result):
-        self._number_of_visits += 1.
-        self._results[result] += 1.
+        self._number_of_visits += 1.0
+        self._results[result] += 1.0
         if self.parent:
             self.parent.backpropagate(result)
