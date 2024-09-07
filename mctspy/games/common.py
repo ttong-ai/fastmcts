@@ -1,66 +1,96 @@
 from abc import ABC, abstractmethod
+from typing import List, Optional, Any
 
+class AbstractGameAction(ABC):
+    pass
 
-class TwoPlayersAbstractGameState(ABC):
-
+class AbstractGameState(ABC):
     @abstractmethod
-    def game_result(self):
+    def is_game_over(self) -> bool:
         """
-        this property should return:
-
-         1 if player #1 wins
-        -1 if player #2 wins
-         0 if there is a draw
-         None if result is unknown
+        Indicates whether the game has ended.
 
         Returns
         -------
-        int
-
+        bool
+            True if the game is over, False otherwise.
         """
         pass
 
     @abstractmethod
-    def is_game_over(self):
+    def game_result(self) -> Any:
         """
-        boolean indicating if the game is over,
-        simplest implementation may just be
-        `return self.game_result() is not None`
+        Returns the result of the game.
+
+        The specific return value depends on the game implementation.
+        For example, it could be a score, a winner, or any other
+        representation of the game's outcome.
 
         Returns
         -------
-        boolean
-
+        Any
+            The result of the game.
         """
         pass
 
     @abstractmethod
-    def move(self, action):
+    def move(self, action: AbstractGameAction) -> 'AbstractGameState':
         """
-        consumes action and returns resulting TwoPlayersAbstractGameState
+        Applies the given action to the current state and returns the resulting state.
 
         Parameters
         ----------
-        action: AbstractGameAction
+        action : AbstractGameAction
+            The action to apply to the current state.
+
+        Returns
+        -------
+        AbstractGameState
+            The new game state after applying the action.
+        """
+        pass
+
+    @abstractmethod
+    def get_legal_actions(self) -> List[AbstractGameAction]:
+        """
+        Returns a list of legal actions from the current state.
+
+        Returns
+        -------
+        List[AbstractGameAction]
+            A list of legal actions that can be taken from the current state.
+        """
+        pass
+
+class TwoPlayersAbstractGameState(AbstractGameState):
+    @abstractmethod
+    def game_result(self) -> Optional[int]:
+        """
+        Returns the result of the game for a two-player game.
+
+        Returns
+        -------
+        Optional[int]
+            1 if player #1 wins
+            -1 if player #2 wins
+            0 if there is a draw
+            None if result is unknown
+        """
+        pass
+
+    @abstractmethod
+    def move(self, action: AbstractGameAction) -> 'TwoPlayersAbstractGameState':
+        """
+        Applies the given action to the current state and returns the resulting state.
+
+        Parameters
+        ----------
+        action : AbstractGameAction
+            The action to apply to the current state.
 
         Returns
         -------
         TwoPlayersAbstractGameState
-
+            The new game state after applying the action.
         """
         pass
-
-    @abstractmethod
-    def get_legal_actions(self):
-        """
-        returns list of legal action at current game state
-        Returns
-        -------
-        list of AbstractGameAction
-
-        """
-        pass
-
-
-class AbstractGameAction(ABC):
-    pass
