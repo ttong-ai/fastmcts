@@ -2,7 +2,7 @@
 import time
 
 
-class MonteCarloTreeSearch(object):
+class MonteCarloTreeSearch:
 
     def __init__(self, node):
         """
