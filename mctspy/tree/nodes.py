@@ -4,7 +4,7 @@ from collections import defaultdict
 from numba import jit
 import numpy as np
 
-from mctspy.games.common import TwoPlayersAbstractGameState
+from mctspy.games.common import AbstractGameState, TwoPlayersAbstractGameState
 
 
 class MonteCarloTreeSearchNode(ABC):
@@ -17,14 +17,14 @@ class MonteCarloTreeSearchNode(ABC):
 
     Parameters
     ----------
-    state : TwoPlayersAbstractGameState
+    state : AbstractGameState
         The game state or problem state represented by this node.
     parent : MonteCarloTreeSearchNode, optional
         The parent node in the search tree. None for the root node.
 
     Attributes
     ----------
-    state : TwoPlayersAbstractGameState
+    state : AbstractGameState
         The game state or problem state represented by this node.
     parent : MonteCarloTreeSearchNode or None
         The parent node in the search tree.
@@ -61,14 +61,14 @@ class MonteCarloTreeSearchNode(ABC):
     override other methods if needed.
     """
 
-    def __init__(self, state: TwoPlayersAbstractGameState, parent: "MonteCarloTreeSearchNode" = None):
+    def __init__(self, state: AbstractGameState, parent: "MonteCarloTreeSearchNode" = None):
         """
         Parameters
         ----------
-        state : mctspy.games.common.TwoPlayersAbstractGameState
+        state : mctspy.games.common.AbstractGameState
         parent : MonteCarloTreeSearchNode
         """
-        self.state: TwoPlayersAbstractGameState = state
+        self.state: AbstractGameState = state
         self.parent: "MonteCarloTreeSearchNode" = parent
         self.children = []
 
