@@ -1,7 +1,8 @@
 # nodes.py
-import numpy as np
-from collections import defaultdict
 from abc import ABC, abstractmethod
+from collections import defaultdict
+from numba import jit
+import numpy as np
 
 
 class MonteCarloTreeSearchNode(ABC):
