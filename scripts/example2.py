@@ -8,16 +8,17 @@ from mctspy.games.examples.tictactoe import TicTacToeGameState
 
 def print_board(board):
     symbols = {0: " ", 1: "X", -1: "O"}
+    print("\n" + "----" * len(board[0]) + "-")
     for row in board:
         print("|", end="")
         for cell in row:
             print(f" {symbols[cell]} |", end="")
-        print("\n-------------")
+        print("\n" + "----" * len(row) + "-")
 
 
-def play_game(simulations_per_move=100):
-    initial_board_state = np.zeros((3, 3), dtype=int)
-    state = TicTacToeGameState(state=initial_board_state, next_to_move=1)
+def play_game(board_size: int = 3, connect: int = 3, simulations_per_move=100):
+    initial_board_state = np.zeros((board_size, board_size), dtype=int)
+    state = TicTacToeGameState(state=initial_board_state, next_to_move=1, win=connect)
 
     game_start_time = time.time()
     move_count = 0
@@ -51,4 +52,4 @@ def play_game(simulations_per_move=100):
 
 
 if __name__ == "__main__":
-    play_game(simulations_per_move=500)
+    play_game(5, 4, simulations_per_move=5000)
