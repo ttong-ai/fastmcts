@@ -67,10 +67,6 @@ class AbstractGameState(ABC):
         """
         pass
 
-    @abstractmethod
-    def get_reward(self) -> float:
-        pass
-
 
 class TwoPlayersAbstractGameState(AbstractGameState):
 

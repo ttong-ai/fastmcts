@@ -17,7 +17,7 @@ class TicTacToeGameState(TwoPlayersAbstractGameState):
     x = 1
     o = -1
 
-    def __init__(self, state, next_to_move=1, win=None):
+    def __init__(self, state: np.array, next_to_move: int = 1, win: int = None):
         if len(state.shape) != 2 or state.shape[0] != state.shape[1]:
             raise ValueError("Only 2D square boards allowed")
         self.board = state
@@ -91,11 +91,3 @@ class TicTacToeGameState(TwoPlayersAbstractGameState):
         return [
             TicTacToeMove(coords[0], coords[1], self.next_to_move) for coords in list(zip(indices[0], indices[1]))
         ]
-
-    def get_reward(self):
-        result = self.game_result
-        if result == self.x:
-            return 1.0
-        if result == self.o:
-            return -1.0
-        return 0.0

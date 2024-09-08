@@ -13,7 +13,7 @@ class MonteCarloTreeSearch:
         """
         self.root = node
 
-    def best_action(self, simulations_number=None, total_simulation_seconds=None):
+    def best_action(self, simulations_number: int = None, total_simulation_seconds: float = None):
         """
 
         Parameters
