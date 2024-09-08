@@ -1,9 +1,10 @@
 import numpy as np
 import time
+from typing import cast, Tuple, List, Optional
 
-from mctspy.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
-from mctspy.tree.search import MonteCarloTreeSearch
+from mctspy.tree.nodes import OptimizedMonteCarloTreeSearchNode, OptimizedMCTS, AbstractGameState
 from mctspy.games.examples.tictactoe import TicTacToeGameState
+
 
 
 def print_board(board):
@@ -25,11 +26,12 @@ def play_game(simulations_per_move=100):
     while not state.is_game_over():
         move_start_time = time.time()
 
-        root = TwoPlayersGameMonteCarloTreeSearchNode(state=state)
-        mcts = MonteCarloTreeSearch(root)
+        root = OptimizedMonteCarloTreeSearchNode(state=state)
+        mcts = OptimizedMCTS(root)
         best_node = mcts.best_action(simulations_per_move)
 
         state = best_node.state
+        state = cast(TicTacToeGameState, state)
         move_count += 1
 
         move_end_time = time.time()
@@ -51,4 +53,5 @@ def play_game(simulations_per_move=100):
 
 
 if __name__ == "__main__":
-    play_game(simulations_per_move=500)
+    np.random.seed()
+    play_game(simulations_per_move=1000)
