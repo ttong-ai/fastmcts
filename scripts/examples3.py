@@ -51,11 +51,11 @@ def play_game(board_size: int = 3, connect: int = 3, simulations_per_move=100):
 
     result = state.game_result
     if result == 0:
-        winner = 'X'
+        winner = "X"
     elif result == 1:
-        winner = 'O'
+        winner = "O"
     else:
-        winner = 'Draw'
+        winner = "Draw"
     print(f"Winner: {winner}")
 
 

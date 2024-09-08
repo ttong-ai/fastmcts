@@ -30,15 +30,15 @@ class TicTacToeGameState(GeneralPlayerAbstractGameState):
     def game_result(self):
         # check if game is over
         for i in range(self.board_size - self.win + 1):
-            rowsum = np.sum(self.board[i:i+self.win], 0)
-            colsum = np.sum(self.board[:, i:i+self.win], 1)
+            rowsum = np.sum(self.board[i : i + self.win], 0)
+            colsum = np.sum(self.board[:, i : i + self.win], 1)
             if self.win in rowsum or self.win in colsum:
                 return 0  # Player 0 wins
             if -self.win in rowsum or -self.win in colsum:
                 return 1  # Player 1 wins
         for i in range(self.board_size - self.win + 1):
             for j in range(self.board_size - self.win + 1):
-                sub = self.board[i:i+self.win, j:j+self.win]
+                sub = self.board[i : i + self.win, j : j + self.win]
                 diag_sum_tl = sub.trace()
                 diag_sum_tr = sub[::-1].trace()
                 if diag_sum_tl == self.win or diag_sum_tr == self.win:
@@ -79,8 +79,7 @@ class TicTacToeGameState(GeneralPlayerAbstractGameState):
     def get_legal_actions(self):
         indices = np.where(self.board == 0)
         return [
-            TicTacToeMove(coords[0], coords[1], self.next_to_move)
-            for coords in list(zip(indices[0], indices[1]))
+            TicTacToeMove(coords[0], coords[1], self.next_to_move) for coords in list(zip(indices[0], indices[1]))
         ]
 
     def get_player_relation(self, player1: int, player2: int) -> PlayerRelation:

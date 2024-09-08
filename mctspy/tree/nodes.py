@@ -10,12 +10,6 @@ from mctspy.games.common import AbstractGameState, AbstractGameAction, TwoPlayer
 from mctspy.games.common import PlayerRelation, GeneralPlayerAbstractGameState, GeneralPlayerAbstractGameAction
 
 
-def set_random_seed():
-    seed = int.from_bytes(random.randbytes(4), byteorder="big")
-    random.seed(seed)
-    np.random.seed(seed)
-
-
 class MonteCarloTreeSearchNode(ABC):
     """
     Abstract base class for a node in the Monte Carlo Tree Search (MCTS) algorithm.
@@ -366,7 +360,7 @@ class GeneralMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
 
     @staticmethod
     def get_game_result(state: AbstractGameState) -> Any:
-        if callable(getattr(state, 'game_result', None)):
+        if callable(getattr(state, "game_result", None)):
             return state.game_result()
         else:
             return state.game_result
