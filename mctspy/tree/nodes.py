@@ -349,7 +349,7 @@ class GeneralMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
         return self._number_of_visits
 
     def expand(self) -> "GeneralMonteCarloTreeSearchNode":
-        action = self.untried_actions.pop()
+        action: GeneralPlayerAbstractGameAction = cast(GeneralPlayerAbstractGameAction, self.untried_actions.pop())
         next_state = self.state.move(action)
         child_node = GeneralMonteCarloTreeSearchNode(next_state, parent=self, parent_action=action)
         self.children.append(child_node)
@@ -359,11 +359,8 @@ class GeneralMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
         return self.state.is_game_over()
 
     @staticmethod
-    def get_game_result(state: AbstractGameState) -> Any:
-        if callable(getattr(state, "game_result", None)):
-            return state.game_result()
-        else:
-            return state.game_result
+    def get_game_result(state):
+        return state.game_result() if callable(getattr(state, "game_result", None)) else state.game_result
 
     def rollout(self) -> Any:
         current_rollout_state = self.state
