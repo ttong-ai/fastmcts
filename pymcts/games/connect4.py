@@ -1,5 +1,7 @@
+# connect4.py
+
 import numpy as np
-from mctspy.games.tictactoe import TicTacToeGameState, TicTacToeMove
+from pymcts.games.tictactoe import TicTacToeGameState, TicTacToeMove
 
 
 class Connect4GameState(TicTacToeGameState):

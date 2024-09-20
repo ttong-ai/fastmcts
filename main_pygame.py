@@ -5,9 +5,9 @@ import sys
 import numpy as np
 import time
 
-from mctspy.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
-from mctspy.tree.search import MonteCarloTreeSearch
-from mctspy.games.tictactoe2 import TicTacToeGameState, TicTacToeMove
+from pymcts.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
+from pymcts.tree.search import MonteCarloTreeSearch
+from pymcts.games.tictactoe2 import TicTacToeGameState, TicTacToeMove
 
 # Initialize Pygame
 pygame.init()

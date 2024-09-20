@@ -1,11 +1,12 @@
 # nodes.py
+
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from typing import List, Optional, Dict, Any
 import numpy as np
 import random
 
-from mctspy.games.common import (
+from pymcts.games.common import (
     AbstractGameState,
     AbstractGameAction,
     TwoPlayersAbstractGameState,
@@ -13,7 +14,7 @@ from mctspy.games.common import (
     GeneralPlayerAbstractGameState,
     GeneralPlayerAbstractGameAction,
 )
-from mctspy.utils import _pickle_method, _unpickle_method
+from pymcts.utils import _pickle_method, _unpickle_method
 
 
 class MonteCarloTreeSearchNode(ABC):

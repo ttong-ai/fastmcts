@@ -1,4 +1,4 @@
-## mctspy : python implementation of Monte Carlo Tree Search algorithm
+## pymcts : Python implementation of Monte Carlo Tree Search algorithm
 
  
 Basic python implementation of [Monte Carlo Tree Search](https://int8.io/monte-carlo-tree-search-beginners-guide) (MCTS) intended to run on small game trees. 
@@ -7,7 +7,7 @@ Basic python implementation of [Monte Carlo Tree Search](https://int8.io/monte-c
 ### Installation
 
 ```
-pip3 install mctspy
+pip install pymcts
 ``` 
 
 ### Running tic-tac-toe example 
@@ -17,9 +17,9 @@ to run tic-tac-toe example:
 ```python
 
 import numpy as np
-from mctspy.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
-from mctspy.tree.search import MonteCarloTreeSearch
-from mctspy.games.tictactoe import TicTacToeGameState
+from pymcts.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
+from pymcts.tree.search import MonteCarloTreeSearch
+from pymcts.games.tictactoe import TicTacToeGameState
 
 state = np.zeros((3, 3))
 initial_board_state = TicTacToeGameState(state=state, next_to_move=1)
@@ -42,9 +42,9 @@ If you want to apply MCTS for your own game, its state implementation should der
 
 ```python
 import numpy as np
-from mctspy.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
-from mctspy.tree.search import MonteCarloTreeSearch
-from mctspy.games.connect4 import Connect4GameState
+from pymcts.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
+from pymcts.tree.search import MonteCarloTreeSearch
+from pymcts.games.connect4 import Connect4GameState
 
 # define inital state
 state = np.zeros((7, 7))
