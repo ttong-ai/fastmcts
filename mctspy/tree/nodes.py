@@ -1,13 +1,17 @@
 # nodes.py
 from abc import ABC, abstractmethod
 from collections import defaultdict
+import copyreg
 from numba import jit
 import numpy as np
 import random
 from typing import cast, List, Optional, Dict, Any
+import types
 
 from mctspy.games.common import AbstractGameState, AbstractGameAction, TwoPlayersAbstractGameState
 from mctspy.games.common import PlayerRelation, GeneralPlayerAbstractGameState, GeneralPlayerAbstractGameAction
+from mctspy.utils import _pickle_method, _unpickle_method
+
 
 
 class MonteCarloTreeSearchNode(ABC):
@@ -124,7 +128,15 @@ class MonteCarloTreeSearchNode(ABC):
         )
 
     def best_child(self, c_param=1.4):
-        choices_weights = [self._uct_select(c.q, c.n, self.n, c_param) for c in self.children]
+        if not self.children:
+            return None  # Return None if there are no children
+
+        choices_weights = []
+        for c in self.children:
+            if c.n == 0:
+                choices_weights.append(float("inf"))
+            else:
+                choices_weights.append(self._uct_select(c.q, c.n, self.n, c_param))
         return self.children[np.argmax(choices_weights)]
 
     @staticmethod

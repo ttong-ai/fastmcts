@@ -1,3 +1,4 @@
+# main.py
 import numpy as np
 import time
 
@@ -27,8 +28,13 @@ def play_game(board_size: int = 3, connect: int = 3, simulations_per_move=100):
         move_start_time = time.time()
 
         root = GeneralMonteCarloTreeSearchNode(state=state)
-        mcts = MonteCarloTreeSearch(root)
-        best_node = mcts.best_action(simulations_per_move)
+        # mcts = MonteCarloTreeSearch(root)
+        # best_node = mcts.best_action(simulations_per_move)
+        mcts = MonteCarloTreeSearch(root, num_processes=4)  # Use 4 processes
+        best_node = mcts.best_action_parallel(simulations_number=simulations_per_move)
+        if best_node is None:
+            print("No valid moves available. Game ending.")
+            break
 
         state = best_node.state
         move_count += 1
@@ -60,4 +66,4 @@ def play_game(board_size: int = 3, connect: int = 3, simulations_per_move=100):
 
 
 if __name__ == "__main__":
-    play_game(5, 4, simulations_per_move=5000)
+    play_game(5, 4, simulations_per_move=10000)
