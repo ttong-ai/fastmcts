@@ -19,12 +19,12 @@ to run tic-tac-toe example:
 import numpy as np
 from mctspy.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
 from mctspy.tree.search import MonteCarloTreeSearch
-from mctspy.games.examples.tictactoe import TicTacToeGameState
+from mctspy.games.tictactoe import TicTacToeGameState
 
-state = np.zeros((3,3))
-initial_board_state = TicTacToeGameState(state = state, next_to_move=1)
+state = np.zeros((3, 3))
+initial_board_state = TicTacToeGameState(state=state, next_to_move=1)
 
-root = TwoPlayersGameMonteCarloTreeSearchNode(state = initial_board_state)
+root = TwoPlayersGameMonteCarloTreeSearchNode(state=initial_board_state)
 mcts = MonteCarloTreeSearch(root)
 best_node = mcts.best_action(10000)
 
@@ -39,11 +39,12 @@ If you want to apply MCTS for your own game, its state implementation should der
 (lookup `mctspy.games.examples.tictactoe.TicTacToeGameState` for inspiration)
 
 ### Example Game Play
+
 ```python
 import numpy as np
 from mctspy.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
 from mctspy.tree.search import MonteCarloTreeSearch
-from mctspy.games.examples.connect4 import Connect4GameState
+from mctspy.games.connect4 import Connect4GameState
 
 # define inital state
 state = np.zeros((7, 7))
@@ -53,18 +54,21 @@ board_state = Connect4GameState(
 # link pieces to icons
 pieces = {0: " ", 1: "X", -1: "O"}
 
+
 # print a single row of the board
 def stringify(row):
     return " " + " | ".join(map(lambda x: pieces[int(x)], row)) + " "
+
 
 # display the whole board
 def display(board):
     board = board.copy().T[::-1]
     for row in board[:-1]:
         print(stringify(row))
-        print("-"*(len(row)*4-1))
+        print("-" * (len(row) * 4 - 1))
     print(stringify(board[-1]))
     print()
+
 
 display(board_state.board)
 # keep playing until game terminates

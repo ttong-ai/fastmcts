@@ -1,18 +1,22 @@
 # profile_mcts.py
 import cProfile
+import numpy as np
 import pstats
+
 from mctspy.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
 from mctspy.tree.search import MonteCarloTreeSearch
-from mctspy.games.examples.tictactoe2 import TicTacToeGameState
-import numpy as np
+from mctspy.games.tictactoe2 import TicTacToeGameState
 
 
 def run_mcts():
-    initial_state = TicTacToeGameState(np.zeros((3, 3), dtype=int))
+    initial_state = TicTacToeGameState(np.zeros((5, 5), dtype=int))
     root_node = TwoPlayersGameMonteCarloTreeSearchNode(initial_state)
-    mcts = MonteCarloTreeSearch(root_node)
-    best_node = mcts.best_action(simulations_number=1000)
-    print(f"Best action leads to node with Q: {best_node.q}, N: {best_node.n}")
+    mcts = MonteCarloTreeSearch(root_node, num_processes=4)  # Specify number of processes
+    best_node = mcts.best_action(simulations_number=5000)
+    if best_node:
+        print(f"Best action leads to node with Q: {best_node.q}, N: {best_node.n}")
+    else:
+        print("No valid moves found.")
 
 
 if __name__ == "__main__":

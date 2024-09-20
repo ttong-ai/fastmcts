@@ -3,7 +3,7 @@ import time
 
 from mctspy.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
 from mctspy.tree.search import MonteCarloTreeSearch
-from mctspy.games.examples.tictactoe import TicTacToeGameState
+from mctspy.games.tictactoe import TicTacToeGameState
 
 
 def print_board(board):
@@ -52,4 +52,4 @@ def play_game(board_size: int = 3, connect: int = 3, simulations_per_move=100):
 
 
 if __name__ == "__main__":
-    play_game(5, 4, simulations_per_move=5000)
+    play_game(5, 4, simulations_per_move=10000)

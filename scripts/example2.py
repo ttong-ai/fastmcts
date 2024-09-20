@@ -2,9 +2,10 @@
 import numpy as np
 import time
 
-from mctspy.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode  # Updated import
+from mctspy.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode  # Correct node class
 from mctspy.tree.search import MonteCarloTreeSearch
-from mctspy.games.examples.tictactoe2 import TicTacToeGameState  # Updated import path
+from mctspy.games.tictactoe2 import TicTacToeGameState  # Ensure correct import path
+
 
 def print_board(board):
     symbols = {0: " ", 1: "X", -1: "O"}
@@ -14,6 +15,7 @@ def print_board(board):
         for cell in row:
             print(f" {symbols[cell]} |", end="")
         print("\n" + "----" * board.shape[1] + "-")
+
 
 def play_game(board_size: int = 3, connect: int = 3, simulations_per_move: int = 10000):
     # Initialize the game state
@@ -47,7 +49,7 @@ def play_game(board_size: int = 3, connect: int = 3, simulations_per_move: int =
         move_duration = move_end_time - move_start_time
 
         # Display the move information and current board state
-        print(f"\nMove {move_count} (Player {'X' if state.next_to_move == 1 else 'O'}):")
+        print(f"\nMove {move_count} (Player {'O' if state.next_to_move == 1 else 'X'}):")
         print(f"Action taken: {best_node.parent_action}")
         print(f"Simulations: {simulations_per_move}")
         print(f"Time taken: {move_duration:.2f} seconds")
@@ -61,13 +63,14 @@ def play_game(board_size: int = 3, connect: int = 3, simulations_per_move: int =
     print(f"Total game time: {game_duration:.2f} seconds")
 
     result = state.game_result
-    if result == 0:
+    if result == 1:
         winner = "X"
-    elif result == 1:
+    elif result == -1:
         winner = "O"
     else:
         winner = "Draw"
     print(f"Winner: {winner}")
+
 
 if __name__ == "__main__":
     play_game(board_size=5, connect=4, simulations_per_move=10000)
