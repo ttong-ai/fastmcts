@@ -12,7 +12,7 @@ def run_mcts():
     initial_state = TicTacToeGameState(np.zeros((5, 5), dtype=int))
     root_node = TwoPlayersGameMonteCarloTreeSearchNode(initial_state)
     mcts = MonteCarloTreeSearch(root_node, num_processes=4)  # Specify number of processes
-    best_node = mcts.best_action(simulations_number=5000)
+    best_node = mcts.best_action(simulations_number=10000)
     if best_node:
         print(f"Best action leads to node with Q: {best_node.q}, N: {best_node.n}")
     else:

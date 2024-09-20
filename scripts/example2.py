@@ -1,10 +1,11 @@
 # main.py
+
 import numpy as np
 import time
 
-from mctspy.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode  # Correct node class
+from mctspy.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
 from mctspy.tree.search import MonteCarloTreeSearch
-from mctspy.games.tictactoe2 import TicTacToeGameState  # Ensure correct import path
+from mctspy.games.tictactoe2 import TicTacToeGameState
 
 
 def print_board(board):
@@ -32,7 +33,7 @@ def play_game(board_size: int = 3, connect: int = 3, simulations_per_move: int =
         root = TwoPlayersGameMonteCarloTreeSearchNode(state=state)
 
         # Initialize MCTS with the root node and specify the number of processes
-        mcts = MonteCarloTreeSearch(root, num_processes=4)  # Adjust num_processes as needed
+        mcts = MonteCarloTreeSearch(root)  # Adjust num_processes as needed
 
         # Perform parallel MCTS to find the best move
         best_node = mcts.best_action_parallel(simulations_number=simulations_per_move)
@@ -49,12 +50,16 @@ def play_game(board_size: int = 3, connect: int = 3, simulations_per_move: int =
         move_duration = move_end_time - move_start_time
 
         # Display the move information and current board state
-        print(f"\nMove {move_count} (Player {'O' if state.next_to_move == 1 else 'X'}):")
-        print(f"Action taken: {best_node.parent_action}")
+        print(f"\nMove {move_count} (Player {'X' if state.next_to_move == 1 else 'O'}):")
+        print(
+            f"Action taken: "
+            f"x:{best_node.parent_action.x_coordinate+1} y:{best_node.parent_action.y_coordinate+1}"
+        )
         print(f"Simulations: {simulations_per_move}")
         print(f"Time taken: {move_duration:.2f} seconds")
         print_board(state.board)
 
+    # After the game loop, print the game result
     game_end_time = time.time()
     game_duration = game_end_time - game_start_time
 

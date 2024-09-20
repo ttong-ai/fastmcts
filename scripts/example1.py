@@ -18,7 +18,7 @@ def print_board(board):
 
 def play_game(board_size: int = 3, connect: int = 3, simulations_per_move=100):
     initial_board_state = np.zeros((board_size, board_size), dtype=int)
-    state = TicTacToeGameState(state=initial_board_state, next_to_move=1, win=connect)
+    state = TicTacToeGameState(state=initial_board_state, next_to_move=0, win=connect)
 
     game_start_time = time.time()
     move_count = 0

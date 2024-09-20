@@ -1,10 +1,12 @@
 # tictactoe2.py
-
-from enum import Enum
-import numpy as np
 from typing import List, Optional
+import numpy as np
 
-from mctspy.games.common import PlayerRelation, GeneralPlayerAbstractGameAction, GeneralPlayerAbstractGameState
+from mctspy.games.common import (
+    PlayerRelation,
+    GeneralPlayerAbstractGameAction,
+    GeneralPlayerAbstractGameState,
+)
 
 
 class TicTacToeMove(GeneralPlayerAbstractGameAction):
@@ -18,45 +20,59 @@ class TicTacToeMove(GeneralPlayerAbstractGameAction):
 
 
 class TicTacToeGameState(GeneralPlayerAbstractGameState):
-    def __init__(self, state: np.array, next_to_move: int = 0, win: int = None):
-        if len(state.shape) != 2 or state.shape[0] != state.shape[1]:
-            raise ValueError("Only 2D square boards allowed")
+    def __init__(self, state: np.ndarray, next_to_move: int = 0, win: int = None):
+        if len(state.shape) != 2:
+            raise ValueError("Only 2D boards allowed")
         self.board = state
-        self.board_size = state.shape[0]
+        self.board_rows = state.shape[0]
+        self.board_cols = state.shape[1]
         if win is None:
-            win = self.board_size
+            win = min(self.board_rows, self.board_cols)
         self.win = win
         super().__init__(num_players=2, player_relations=PlayerRelation.ADVERSARIAL)
         self.next_to_move = next_to_move
 
     @property
     def game_result(self) -> Optional[int]:
-        # Check for horizontal and vertical wins
-        for i in range(self.board_size):
-            row_sum = np.sum(self.board[i, :])
-            if row_sum == self.win:
-                return 1  # Player 0 wins
-            elif row_sum == -self.win:
-                return -1  # Player 1 wins
+        result = self._check_winner()
+        return result
 
-            col_sum = np.sum(self.board[:, i])
-            if col_sum == self.win:
-                return 1
-            elif col_sum == -self.win:
-                return -1
+    def _check_winner(self) -> Optional[int]:
+        # Check rows
+        for row in range(self.board_rows):
+            for col in range(self.board_cols - self.win + 1):
+                window = self.board[row, col : col + self.win]
+                if np.all(window == 1):
+                    return 1  # Player 0 wins
+                elif np.all(window == -1):
+                    return -1  # Player 1 wins
 
-        # Check for diagonal wins
-        diag_sum_tl = np.trace(self.board)
-        if diag_sum_tl == self.win:
-            return 1
-        elif diag_sum_tl == -self.win:
-            return -1
+        # Check columns
+        for col in range(self.board_cols):
+            for row in range(self.board_rows - self.win + 1):
+                window = self.board[row : row + self.win, col]
+                if np.all(window == 1):
+                    return 1
+                elif np.all(window == -1):
+                    return -1
 
-        diag_sum_tr = np.trace(np.fliplr(self.board))
-        if diag_sum_tr == self.win:
-            return 1
-        elif diag_sum_tr == -self.win:
-            return -1
+        # Check positive diagonals (bottom-left to top-right)
+        for row in range(self.board_rows - self.win + 1):
+            for col in range(self.board_cols - self.win + 1):
+                window = [self.board[row + i, col + i] for i in range(self.win)]
+                if np.all(np.array(window) == 1):
+                    return 1
+                elif np.all(np.array(window) == -1):
+                    return -1
+
+        # Check negative diagonals (top-left to bottom-right)
+        for row in range(self.win - 1, self.board_rows):
+            for col in range(self.board_cols - self.win + 1):
+                window = [self.board[row - i, col + i] for i in range(self.win)]
+                if np.all(np.array(window) == 1):
+                    return 1
+                elif np.all(np.array(window) == -1):
+                    return -1
 
         # Check for draw
         if not np.any(self.board == 0):
@@ -74,7 +90,7 @@ class TicTacToeGameState(GeneralPlayerAbstractGameState):
             return False
 
         # Check if inside the board
-        if not (0 <= move.x_coordinate < self.board_size and 0 <= move.y_coordinate < self.board_size):
+        if not (0 <= move.x_coordinate < self.board_rows and 0 <= move.y_coordinate < self.board_cols):
             return False
 
         # Check if board field not occupied yet
