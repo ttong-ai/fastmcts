@@ -1,5 +1,5 @@
 import numpy as np
-from mctspy.games.examples.tictactoe import TicTacToeGameState, TicTacToeMove
+from mctspy.games.tictactoe import TicTacToeGameState, TicTacToeMove
 
 
 class Connect4GameState(TicTacToeGameState):

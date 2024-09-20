@@ -1,4 +1,5 @@
 # tictactoe2.py
+
 from enum import Enum
 import numpy as np
 from typing import List, Optional
@@ -34,32 +35,32 @@ class TicTacToeGameState(GeneralPlayerAbstractGameState):
         for i in range(self.board_size):
             row_sum = np.sum(self.board[i, :])
             if row_sum == self.win:
-                return 0  # Player 0 wins
+                return 1  # Player 0 wins
             elif row_sum == -self.win:
-                return 1  # Player 1 wins
+                return -1  # Player 1 wins
 
             col_sum = np.sum(self.board[:, i])
             if col_sum == self.win:
-                return 0
-            elif col_sum == -self.win:
                 return 1
+            elif col_sum == -self.win:
+                return -1
 
         # Check for diagonal wins
         diag_sum_tl = np.trace(self.board)
         if diag_sum_tl == self.win:
-            return 0
-        elif diag_sum_tl == -self.win:
             return 1
+        elif diag_sum_tl == -self.win:
+            return -1
 
         diag_sum_tr = np.trace(np.fliplr(self.board))
         if diag_sum_tr == self.win:
-            return 0
-        elif diag_sum_tr == -self.win:
             return 1
+        elif diag_sum_tr == -self.win:
+            return -1
 
         # Check for draw
         if not np.any(self.board == 0):
-            return -1  # Draw
+            return 0  # Draw
 
         # Game is not over
         return None
