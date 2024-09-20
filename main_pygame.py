@@ -23,15 +23,17 @@ WINDOW_SIZE = (
 )
 
 # Colors
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-GREY = (200, 200, 200)
-RED = (255, 0, 0)
-BLUE = (0, 0, 255)
+WHITE = (250, 250, 250)
+BLACK = (10, 10, 10)
+GREY = (50, 50, 50)
+RED = (240, 30, 0)
+BLUE = (0, 50, 230)
+YELLOW = (240, 240, 0)
+GREEN = (30, 240, 0)
 
 # Fonts
-FONT = pygame.font.SysFont(None, 40)
-END_FONT = pygame.font.SysFont(None, 60)
+FONT = pygame.font.SysFont('Arial', 40)
+END_FONT = pygame.font.SysFont('Arial', 60)
 
 # Initialize the display
 screen = pygame.display.set_mode(WINDOW_SIZE)
@@ -40,73 +42,97 @@ pygame.display.set_caption("MCTS Tic-Tac-Toe")
 # Clock for controlling the frame rate
 clock = pygame.time.Clock()
 
+# Create X and O images programmatically
+X_IMAGE = pygame.Surface((CELL_SIZE - 40, CELL_SIZE - 40), pygame.SRCALPHA)
+O_IMAGE = pygame.Surface((CELL_SIZE - 40, CELL_SIZE - 40), pygame.SRCALPHA)
 
-def draw_board(board):
-    """
-    Draws the game board and the current state of the board.
+# Draw X on X_IMAGE surface
+pygame.draw.line(X_IMAGE, RED, (0, 0), (CELL_SIZE - 40, CELL_SIZE - 40), 8)
+pygame.draw.line(X_IMAGE, RED, (CELL_SIZE - 40, 0), (0, CELL_SIZE - 40), 8)
 
-    Parameters:
-    - board (np.ndarray): 2D array representing the game state.
-    """
-    screen.fill(GREY)
+# Draw O on O_IMAGE surface
+pygame.draw.circle(O_IMAGE, BLUE, ((CELL_SIZE - 40) // 2, (CELL_SIZE - 40) // 2), (CELL_SIZE - 40) // 2 - 5, 8)
+
+
+def draw_gradient_background(screen, color_start, color_end):
+    """Draws a vertical gradient background."""
+    for y in range(WINDOW_SIZE[1]):
+        ratio = y / WINDOW_SIZE[1]
+        color = (
+            int(color_start[0] * (1 - ratio) + color_end[0] * ratio),
+            int(color_start[1] * (1 - ratio) + color_end[1] * ratio),
+            int(color_start[2] * (1 - ratio) + color_end[2] * ratio)
+        )
+        pygame.draw.line(screen, color, (0, y), (WINDOW_SIZE[0], y))
+
+
+def draw_board(board, last_move=None, winning_sequence=None):
+    # Draw gradient background
+    draw_gradient_background(screen, GREY, WHITE)
 
     # Draw cells
     for row in range(BOARD_SIZE):
         for col in range(BOARD_SIZE):
             cell_rect = pygame.Rect(
-                MARGIN + col * (CELL_SIZE + MARGIN), MARGIN + row * (CELL_SIZE + MARGIN), CELL_SIZE, CELL_SIZE
+                MARGIN + col * (CELL_SIZE + MARGIN),
+                MARGIN + row * (CELL_SIZE + MARGIN),
+                CELL_SIZE,
+                CELL_SIZE
             )
             pygame.draw.rect(screen, WHITE, cell_rect)
-
+            pygame.draw.rect(screen, BLACK, cell_rect, 1)
             # Draw X or O
             if board[row][col] == 1:
                 draw_X(row, col)
             elif board[row][col] == -1:
                 draw_O(row, col)
 
-    # Update the display
+    # Highlight the last move
+    if last_move:
+        row, col = last_move
+        highlight_rect = pygame.Rect(
+            MARGIN + col * (CELL_SIZE + MARGIN),
+            MARGIN + row * (CELL_SIZE + MARGIN),
+            CELL_SIZE,
+            CELL_SIZE
+        )
+        pygame.draw.rect(screen, YELLOW, highlight_rect, 5)  # Yellow border
+
+    # Highlight winning sequence
+    if winning_sequence:
+        for row, col in winning_sequence:
+            highlight_rect = pygame.Rect(
+                MARGIN + col * (CELL_SIZE + MARGIN),
+                MARGIN + row * (CELL_SIZE + MARGIN),
+                CELL_SIZE,
+                CELL_SIZE
+            )
+            pygame.draw.rect(screen, GREEN, highlight_rect, 5)  # Green border
+
     pygame.display.flip()
 
 
 def draw_X(row, col):
-    """
-    Draws an X in the specified cell.
-
-    Parameters:
-    - row (int): Row index.
-    - col (int): Column index.
-    """
-    start_pos1 = (MARGIN + col * (CELL_SIZE + MARGIN) + 20, MARGIN + row * (CELL_SIZE + MARGIN) + 20)
-    end_pos1 = (MARGIN + (col + 1) * (CELL_SIZE + MARGIN) - 20, MARGIN + (row + 1) * (CELL_SIZE + MARGIN) - 20)
-    start_pos2 = (MARGIN + (col + 1) * (CELL_SIZE + MARGIN) - 20, MARGIN + row * (CELL_SIZE + MARGIN) + 20)
-    end_pos2 = (MARGIN + col * (CELL_SIZE + MARGIN) + 20, MARGIN + (row + 1) * (CELL_SIZE + MARGIN) - 20)
-    pygame.draw.line(screen, RED, start_pos1, end_pos1, 5)
-    pygame.draw.line(screen, RED, start_pos2, end_pos2, 5)
+    position = (
+        MARGIN + col * (CELL_SIZE + MARGIN) + 20,
+        MARGIN + row * (CELL_SIZE + MARGIN) + 20
+    )
+    screen.blit(X_IMAGE, position)
 
 
 def draw_O(row, col):
-    """
-    Draws an O in the specified cell.
-
-    Parameters:
-    - row (int): Row index.
-    - col (int): Column index.
-    """
-    center = (
-        MARGIN + col * (CELL_SIZE + MARGIN) + CELL_SIZE // 2,
-        MARGIN + row * (CELL_SIZE + MARGIN) + CELL_SIZE // 2,
+    position = (
+        MARGIN + col * (CELL_SIZE + MARGIN) + 20,
+        MARGIN + row * (CELL_SIZE + MARGIN) + 20
     )
-    pygame.draw.circle(screen, BLUE, center, CELL_SIZE // 2 - 20, 5)
+    screen.blit(O_IMAGE, position)
 
 
 def display_message(message, color=BLACK):
-    """
-    Displays a message at the bottom of the window.
-
-    Parameters:
-    - message (str): The message to display.
-    - color (tuple): RGB color of the text.
-    """
+    # Draw background rectangle
+    bg_rect = pygame.Rect(0, WINDOW_SIZE[1] - 100, WINDOW_SIZE[0], 100)
+    pygame.draw.rect(screen, GREY, bg_rect)
+    # Render and blit the text
     text = FONT.render(message, True, color)
     text_rect = text.get_rect(center=(WINDOW_SIZE[0] // 2, WINDOW_SIZE[1] - 50))
     screen.blit(text, text_rect)
@@ -114,13 +140,11 @@ def display_message(message, color=BLACK):
 
 
 def display_end_message(message, color=BLACK):
-    """
-    Displays the end game message prominently.
-
-    Parameters:
-    - message (str): The message to display.
-    - color (tuple): RGB color of the text.
-    """
+    # Draw semi-transparent overlay
+    overlay = pygame.Surface((WINDOW_SIZE[0], WINDOW_SIZE[1]), pygame.SRCALPHA)
+    overlay.fill((0, 0, 0, 180))  # Semi-transparent black
+    screen.blit(overlay, (0, 0))
+    # Render and blit the text
     text = END_FONT.render(message, True, color)
     text_rect = text.get_rect(center=(WINDOW_SIZE[0] // 2, WINDOW_SIZE[1] // 2))
     screen.blit(text, text_rect)
@@ -128,20 +152,14 @@ def display_end_message(message, color=BLACK):
 
 
 def get_cell_from_mouse(pos):
-    """
-    Converts mouse position to board coordinates.
-
-    Parameters:
-    - pos (tuple): (x, y) mouse position.
-
-    Returns:
-    - (int, int): (row, col) indices on the board.
-    """
     x, y = pos
     for row in range(BOARD_SIZE):
         for col in range(BOARD_SIZE):
             cell_rect = pygame.Rect(
-                MARGIN + col * (CELL_SIZE + MARGIN), MARGIN + row * (CELL_SIZE + MARGIN), CELL_SIZE, CELL_SIZE
+                MARGIN + col * (CELL_SIZE + MARGIN),
+                MARGIN + row * (CELL_SIZE + MARGIN),
+                CELL_SIZE,
+                CELL_SIZE
             )
             if cell_rect.collidepoint(x, y):
                 return row, col
@@ -149,15 +167,6 @@ def get_cell_from_mouse(pos):
 
 
 def ai_move(state):
-    """
-    Uses MCTS to determine the AI's move.
-
-    Parameters:
-    - state (TicTacToeGameState): Current game state.
-
-    Returns:
-    - TicTacToeMove: The chosen move by AI.
-    """
     root_node = TwoPlayersGameMonteCarloTreeSearchNode(state=state)
     mcts = MonteCarloTreeSearch(root_node, num_processes=4)
     best_node = mcts.best_action_parallel(simulations_number=1000)
@@ -166,16 +175,16 @@ def ai_move(state):
     return None
 
 
-def play_game_pygame(board_size: int = 5, connect: int = 4, simulations_per_move: int = 10000):
-    # Initialize the game state
+def play_game_pygame(board_size: int = 5, connect: int = 4, simulations_per_move: int = 1000):
     initial_board_state = np.zeros((board_size, board_size), dtype=int)
     state = TicTacToeGameState(state=initial_board_state, next_to_move=0, win=connect)
-
     game_over = False
     winner = None
+    last_move = None
+    winning_sequence = None
 
     while True:
-        draw_board(state.board)
+        draw_board(state.board, last_move=last_move, winning_sequence=winning_sequence if game_over else None)
 
         if game_over:
             if winner == 1:
@@ -204,30 +213,30 @@ def play_game_pygame(board_size: int = 5, connect: int = 4, simulations_per_move
                             move = TicTacToeMove(x_coordinate=row, y_coordinate=col, player=0)
                             if state.is_move_legal(move):
                                 state = state.move(move)
+                                last_move = (move.x_coordinate, move.y_coordinate)
                                 # Check for game over
                                 if state.is_game_over():
                                     game_over = True
                                     winner = state.game_result
+                                    # winning_sequence = state.winning_sequence
                                 else:
                                     # AI's turn
                                     display_message("AI is thinking...", BLUE)
                                     pygame.display.flip()
-                                    pygame.event.pump()  # Allow pygame to process internal actions
-
-                                    # To prevent the UI from freezing, run AI move after a short delay
-                                    pygame.time.delay(100)  # 100 milliseconds
-
+                                    pygame.event.pump()
+                                    pygame.time.delay(500)
                                     ai_action = ai_move(state)
                                     if ai_action:
                                         state = state.move(ai_action)
+                                        last_move = (ai_action.x_coordinate, ai_action.y_coordinate)
                                         if state.is_game_over():
                                             game_over = True
                                             winner = state.game_result
+                                            # winning_sequence = state.winning_sequence
                                     else:
                                         # No valid AI moves
                                         game_over = True
                                         winner = 0
-        # Control the frame rate
         clock.tick(30)
 
 
