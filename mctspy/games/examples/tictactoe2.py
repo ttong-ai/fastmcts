@@ -1,7 +1,7 @@
 # tictactoe2.py
-
 from enum import Enum
 import numpy as np
+from typing import List, Optional
 
 from mctspy.games.common import PlayerRelation, GeneralPlayerAbstractGameAction, GeneralPlayerAbstractGameState
 
@@ -29,60 +29,67 @@ class TicTacToeGameState(GeneralPlayerAbstractGameState):
         self.next_to_move = next_to_move
 
     @property
-    def game_result(self):
-        # check if game is over
-        for i in range(self.board_size - self.win + 1):
-            rowsum = np.sum(self.board[i : i + self.win], 0)
-            colsum = np.sum(self.board[:, i : i + self.win], 1)
-            if self.win in rowsum or self.win in colsum:
+    def game_result(self) -> Optional[int]:
+        # Check for horizontal and vertical wins
+        for i in range(self.board_size):
+            row_sum = np.sum(self.board[i, :])
+            if row_sum == self.win:
                 return 0  # Player 0 wins
-            if -self.win in rowsum or -self.win in colsum:
+            elif row_sum == -self.win:
                 return 1  # Player 1 wins
-        for i in range(self.board_size - self.win + 1):
-            for j in range(self.board_size - self.win + 1):
-                sub = self.board[i : i + self.win, j : j + self.win]
-                diag_sum_tl = sub.trace()
-                diag_sum_tr = sub[::-1].trace()
-                if diag_sum_tl == self.win or diag_sum_tr == self.win:
-                    return 0  # Player 0 wins
-                if diag_sum_tl == -self.win or diag_sum_tr == -self.win:
-                    return 1  # Player 1 wins
 
-        # draw
-        if np.all(self.board != 0):
+            col_sum = np.sum(self.board[:, i])
+            if col_sum == self.win:
+                return 0
+            elif col_sum == -self.win:
+                return 1
+
+        # Check for diagonal wins
+        diag_sum_tl = np.trace(self.board)
+        if diag_sum_tl == self.win:
+            return 0
+        elif diag_sum_tl == -self.win:
+            return 1
+
+        diag_sum_tr = np.trace(np.fliplr(self.board))
+        if diag_sum_tr == self.win:
+            return 0
+        elif diag_sum_tr == -self.win:
+            return 1
+
+        # Check for draw
+        if not np.any(self.board == 0):
             return -1  # Draw
 
-        # if not over - no result
+        # Game is not over
         return None
 
-    def is_game_over(self):
+    def is_game_over(self) -> bool:
         return self.game_result is not None
 
-    def is_move_legal(self, move: TicTacToeMove):
-        # check if correct player moves
+    def is_move_legal(self, move: TicTacToeMove) -> bool:
+        # Check if correct player moves
         if move.player != self.next_to_move:
             return False
 
-        # check if inside the board
+        # Check if inside the board
         if not (0 <= move.x_coordinate < self.board_size and 0 <= move.y_coordinate < self.board_size):
             return False
 
-        # check if board field not occupied yet
+        # Check if board field not occupied yet
         return self.board[move.x_coordinate, move.y_coordinate] == 0
 
-    def move(self, move: TicTacToeMove):
+    def move(self, move: TicTacToeMove) -> "TicTacToeGameState":
         if not self.is_move_legal(move):
-            raise ValueError(f"move {move} on board {self.board} is not legal")
+            raise ValueError(f"Move {move} on board\n{self.board}\nis not legal")
         new_board = np.copy(self.board)
         new_board[move.x_coordinate, move.y_coordinate] = 1 if move.player == 0 else -1
         next_to_move = 1 - self.next_to_move  # Switch players
         return TicTacToeGameState(new_board, next_to_move, self.win)
 
-    def get_legal_actions(self):
-        indices = np.where(self.board == 0)
-        return [
-            TicTacToeMove(coords[0], coords[1], self.next_to_move) for coords in list(zip(indices[0], indices[1]))
-        ]
+    def get_legal_actions(self) -> List[TicTacToeMove]:
+        indices = np.argwhere(self.board == 0)
+        return [TicTacToeMove(x, y, self.next_to_move) for x, y in indices]
 
     def get_player_relation(self, player1: int, player2: int) -> PlayerRelation:
         return PlayerRelation.ADVERSARIAL if player1 != player2 else PlayerRelation.COOPERATIVE

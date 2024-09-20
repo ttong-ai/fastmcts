@@ -1,17 +1,20 @@
 # nodes.py
 from abc import ABC, abstractmethod
 from collections import defaultdict
-import copyreg
-from numba import jit
+from typing import List, Optional, Dict, Any
 import numpy as np
 import random
-from typing import cast, List, Optional, Dict, Any
 import types
 
-from mctspy.games.common import AbstractGameState, AbstractGameAction, TwoPlayersAbstractGameState
-from mctspy.games.common import PlayerRelation, GeneralPlayerAbstractGameState, GeneralPlayerAbstractGameAction
-from mctspy.utils import _pickle_method, _unpickle_method
-
+from mctspy.games.common import (
+    AbstractGameState,
+    AbstractGameAction,
+    TwoPlayersAbstractGameState,
+    PlayerRelation,
+    GeneralPlayerAbstractGameState,
+    GeneralPlayerAbstractGameAction,
+)
+from mctspy.utils import _pickle_method, _unpickle_method, copyreg
 
 
 class MonteCarloTreeSearchNode(ABC):
@@ -69,79 +72,69 @@ class MonteCarloTreeSearchNode(ABC):
     """
 
     def __init__(self, state: AbstractGameState, parent: "MonteCarloTreeSearchNode" = None):
-        """
-        Parameters
-        ----------
-        state : mctspy.games.common.AbstractGameState
-        parent : MonteCarloTreeSearchNode
-        """
         self.state: AbstractGameState = state
         self.parent: "MonteCarloTreeSearchNode" = parent
-        self.children = []
+        self.children: List["MonteCarloTreeSearchNode"] = []
 
     @property
     @abstractmethod
-    def untried_actions(self):
-        """
-
-        Returns
-        -------
-        list of mctspy.games.common.AbstractGameAction
-
-        """
+    def untried_actions(self) -> List[AbstractGameAction]:
         pass
 
     @property
     @abstractmethod
-    def q(self):
+    def q(self) -> float:
         pass
 
     @property
     @abstractmethod
-    def n(self):
+    def n(self) -> float:
         pass
 
     @abstractmethod
-    def expand(self):
+    def expand(self) -> "MonteCarloTreeSearchNode":
         pass
 
     @abstractmethod
-    def is_terminal_node(self):
+    def is_terminal_node(self) -> bool:
         pass
 
     @abstractmethod
-    def rollout(self):
+    def rollout(self) -> Any:
         pass
 
     @abstractmethod
-    def backpropagate(self, reward):
+    def backpropagate(self, reward: Any) -> None:
         pass
 
-    def is_fully_expanded(self):
+    def is_fully_expanded(self) -> bool:
         return len(self.untried_actions) == 0
 
     @staticmethod
-    @jit(nopython=True)
-    def _uct_select(node_total_reward, node_visit_count, parent_visit_count, c_param):
+    def _uct_select(
+        node_total_reward: float, node_visit_count: float, parent_visit_count: float, c_param: float
+    ) -> float:
         return (node_total_reward / node_visit_count) + c_param * np.sqrt(
             (2 * np.log(parent_visit_count) / node_visit_count)
         )
 
-    def best_child(self, c_param=1.4):
+    def best_child(self, c_param: float = 1.4) -> Optional["MonteCarloTreeSearchNode"]:
         if not self.children:
-            return None  # Return None if there are no children
+            return None
 
         choices_weights = []
-        for c in self.children:
-            if c.n == 0:
-                choices_weights.append(float("inf"))
+        for child in self.children:
+            if child.n == 0:
+                weight = float("inf")
             else:
-                choices_weights.append(self._uct_select(c.q, c.n, self.n, c_param))
-        return self.children[np.argmax(choices_weights)]
+                weight = self._uct_select(child.q, child.n, self.n, c_param)
+            choices_weights.append(weight)
+        best_child = self.children[np.argmax(choices_weights)]
+        return best_child
 
     @staticmethod
-    def rollout_policy(possible_moves):
-        return possible_moves[np.random.randint(len(possible_moves))]
+    def rollout_policy(possible_moves: List[AbstractGameAction]) -> AbstractGameAction:
+        return random.choice(possible_moves)
 
 
 class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
@@ -183,58 +176,59 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
     def __init__(
         self,
         state: TwoPlayersAbstractGameState,
-        parent: "TwoPlayersGameMonteCarloTreeSearchNode" = None,
-        parent_action=None,
+        parent: Optional["TwoPlayersGameMonteCarloTreeSearchNode"] = None,
+        parent_action: Optional[AbstractGameAction] = None,
     ):
         super().__init__(state, parent)
-        self.state = cast(TwoPlayersAbstractGameState, state)
-        self.parent = cast(TwoPlayersGameMonteCarloTreeSearchNode, parent)
-        self._number_of_visits = 0.0
-        self._results = defaultdict(int)
-        self._untried_actions = None
-        self.parent_action = parent_action  # Add this line to store the action that led to this node
+        self.state = state
+        self.parent = parent
+        self._number_of_visits: float = 0.0
+        self._results: Dict[Any, float] = defaultdict(float)
+        self._untried_actions: Optional[List[AbstractGameAction]] = None
+        self.parent_action = parent_action
 
     @property
-    def untried_actions(self):
+    def untried_actions(self) -> List[AbstractGameAction]:
         if self._untried_actions is None:
             self._untried_actions = self.state.get_legal_actions()
         return self._untried_actions
 
     @property
-    def q(self):
-        wins = self._results[self.parent.state.next_to_move]
-        loses = self._results[-1 * self.parent.state.next_to_move]
+    def q(self) -> float:
+        current_player = self.parent.state.next_to_move if self.parent else self.state.next_to_move
+        wins = self._results.get(current_player, 0)
+        loses = self._results.get(-current_player, 0)
         return wins - loses
 
     @property
-    def n(self):
+    def n(self) -> float:
         return self._number_of_visits
 
-    def expand(self):
+    def expand(self) -> "TwoPlayersGameMonteCarloTreeSearchNode":
         action = self.untried_actions.pop()
         next_state: TwoPlayersAbstractGameState = self.state.move(action)
-        child_node = TwoPlayersGameMonteCarloTreeSearchNode(
-            next_state, parent=self, parent_action=action  # Pass the action to the child node
-        )
+        child_node = TwoPlayersGameMonteCarloTreeSearchNode(next_state, parent=self, parent_action=action)
         self.children.append(child_node)
         return child_node
 
-    def is_terminal_node(self):
+    def is_terminal_node(self) -> bool:
         return self.state.is_game_over()
 
-    def rollout(self):
+    def rollout(self) -> Any:
         current_rollout_state = self.state
         while not current_rollout_state.is_game_over():
             possible_moves = current_rollout_state.get_legal_actions()
+            if not possible_moves:
+                break  # No possible moves
             action = self.rollout_policy(possible_moves)
             current_rollout_state = current_rollout_state.move(action)
         return current_rollout_state.game_result
 
-    def backpropagate(self, result):
+    def backpropagate(self, reward: Any) -> None:
         self._number_of_visits += 1.0
-        self._results[result] += 1.0
+        self._results[reward] += 1.0
         if self.parent:
-            self.parent.backpropagate(result)
+            self.parent.backpropagate(reward)
 
 
 class GeneralMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
@@ -315,10 +309,10 @@ class GeneralMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
         parent_action: Optional[GeneralPlayerAbstractGameAction] = None,
     ):
         super().__init__(state, parent)
-        self.state: GeneralPlayerAbstractGameState = cast(GeneralPlayerAbstractGameState, state)
-        self.parent: GeneralMonteCarloTreeSearchNode = cast(GeneralMonteCarloTreeSearchNode, parent)
-        self._number_of_visits = 0.0
-        self._results = defaultdict(int)
+        self.state = state
+        self.parent = parent
+        self._number_of_visits: float = 0.0
+        self._results: Dict[Any, float] = defaultdict(float)
         self._untried_actions: Optional[List[GeneralPlayerAbstractGameAction]] = None
         self.parent_action = parent_action
 
@@ -345,7 +339,7 @@ class GeneralMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
 
     def _calculate_adversarial_q(self, current_player: int) -> float:
         wins = self._results.get(current_player, 0)
-        loses = sum(self._results.get(p, 0) for p in range(self.parent.state.num_players) if p != current_player)
+        loses = sum(self._results.get(p, 0) for p in range(self.state.num_players) if p != current_player)
         return wins - loses
 
     def _calculate_cooperative_q(self) -> float:
@@ -361,7 +355,7 @@ class GeneralMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
         return self._number_of_visits
 
     def expand(self) -> "GeneralMonteCarloTreeSearchNode":
-        action: GeneralPlayerAbstractGameAction = cast(GeneralPlayerAbstractGameAction, self.untried_actions.pop())
+        action = self.untried_actions.pop()
         next_state = self.state.move(action)
         child_node = GeneralMonteCarloTreeSearchNode(next_state, parent=self, parent_action=action)
         self.children.append(child_node)
@@ -378,6 +372,8 @@ class GeneralMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
         current_rollout_state = self.state
         while not current_rollout_state.is_game_over():
             possible_moves = current_rollout_state.get_legal_actions()
+            if not possible_moves:
+                break  # No possible moves
             action = self.rollout_policy(possible_moves)
             current_rollout_state = current_rollout_state.move(action)
         return self.get_game_result(current_rollout_state)
