@@ -31,55 +31,68 @@ class TicTacToeGameState(GeneralPlayerAbstractGameState):
         self.win = win
         super().__init__(num_players=2, player_relations=PlayerRelation.ADVERSARIAL)
         self.next_to_move = next_to_move
+        self.winning_sequence = None
 
     @property
-    def game_result(self) -> Optional[int]:
-        result = self._check_winner()
-        return result
+    def game_result(self):
+        result, sequence = self._check_winner()
+        self.winning_sequence = sequence  # Set the winning sequence
+        if result is not None:
+            return result
+        elif np.all(self.board != 0):
+            # Draw
+            return 0
+        else:
+            # Game is not over
+            return None
 
-    def _check_winner(self) -> Optional[int]:
+    def _check_winner(self):
         # Check rows
         for row in range(self.board_rows):
             for col in range(self.board_cols - self.win + 1):
                 window = self.board[row, col : col + self.win]
                 if np.all(window == 1):
-                    return 1  # Player 0 wins
+                    sequence = [(row, c) for c in range(col, col + self.win)]
+                    return 1, sequence
                 elif np.all(window == -1):
-                    return -1  # Player 1 wins
+                    sequence = [(row, c) for c in range(col, col + self.win)]
+                    return -1, sequence
 
         # Check columns
         for col in range(self.board_cols):
             for row in range(self.board_rows - self.win + 1):
                 window = self.board[row : row + self.win, col]
                 if np.all(window == 1):
-                    return 1
+                    sequence = [(r, col) for r in range(row, row + self.win)]
+                    return 1, sequence
                 elif np.all(window == -1):
-                    return -1
+                    sequence = [(r, col) for r in range(row, row + self.win)]
+                    return -1, sequence
 
-        # Check positive diagonals (bottom-left to top-right)
+        # Check positive diagonals
         for row in range(self.board_rows - self.win + 1):
             for col in range(self.board_cols - self.win + 1):
                 window = [self.board[row + i, col + i] for i in range(self.win)]
                 if np.all(np.array(window) == 1):
-                    return 1
+                    sequence = [(row + i, col + i) for i in range(self.win)]
+                    return 1, sequence
                 elif np.all(np.array(window) == -1):
-                    return -1
+                    sequence = [(row + i, col + i) for i in range(self.win)]
+                    return -1, sequence
 
-        # Check negative diagonals (top-left to bottom-right)
+        # Check negative diagonals
         for row in range(self.win - 1, self.board_rows):
             for col in range(self.board_cols - self.win + 1):
                 window = [self.board[row - i, col + i] for i in range(self.win)]
                 if np.all(np.array(window) == 1):
-                    return 1
+                    sequence = [(row - i, col + i) for i in range(self.win)]
+                    return 1, sequence
                 elif np.all(np.array(window) == -1):
-                    return -1
+                    sequence = [(row - i, col + i) for i in range(self.win)]
+                    return -1, sequence
 
-        # Check for draw
-        if not np.any(self.board == 0):
-            return 0  # Draw
-
-        # Game is not over
-        return None
+        # No winner
+        return None, None
 
     def is_game_over(self) -> bool:
         return self.game_result is not None
