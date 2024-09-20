@@ -33,7 +33,7 @@ def play_game(board_size: int = 3, connect: int = 3, simulations_per_move: int =
         root = TwoPlayersGameMonteCarloTreeSearchNode(state=state)
 
         # Initialize MCTS with the root node and specify the number of processes
-        mcts = MonteCarloTreeSearch(root)  # Adjust num_processes as needed
+        mcts = MonteCarloTreeSearch(root, num_processes=4)  # Adjust num_processes as needed
 
         # Perform parallel MCTS to find the best move
         best_node = mcts.best_action_parallel(simulations_number=simulations_per_move)
@@ -78,4 +78,4 @@ def play_game(board_size: int = 3, connect: int = 3, simulations_per_move: int =
 
 
 if __name__ == "__main__":
-    play_game(board_size=5, connect=4, simulations_per_move=10000)
+    play_game(board_size=5, connect=4, simulations_per_move=20000)

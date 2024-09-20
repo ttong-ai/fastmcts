@@ -14,9 +14,9 @@ pygame.init()
 
 # Constants
 BOARD_SIZE = 5  # 5x5 board
-CONNECT = 4     # Connect 4
+CONNECT = 4  # Connect 4
 CELL_SIZE = 100  # Size of each cell in pixels
-MARGIN = 5      # Margin between cells
+MARGIN = 5  # Margin between cells
 WINDOW_SIZE = (
     BOARD_SIZE * CELL_SIZE + (BOARD_SIZE + 1) * MARGIN,
     BOARD_SIZE * CELL_SIZE + (BOARD_SIZE + 1) * MARGIN + 100,
@@ -32,8 +32,8 @@ YELLOW = (240, 240, 0)
 GREEN = (30, 240, 0)
 
 # Fonts
-FONT = pygame.font.SysFont('Arial', 40)
-END_FONT = pygame.font.SysFont('Arial', 60)
+FONT = pygame.font.SysFont("Arial", 40)
+END_FONT = pygame.font.SysFont("Arial", 60)
 
 # Initialize the display
 screen = pygame.display.set_mode(WINDOW_SIZE)
@@ -53,6 +53,7 @@ pygame.draw.line(X_IMAGE, RED, (CELL_SIZE - 40, 0), (0, CELL_SIZE - 40), 8)
 # Draw O on O_IMAGE surface
 pygame.draw.circle(O_IMAGE, BLUE, ((CELL_SIZE - 40) // 2, (CELL_SIZE - 40) // 2), (CELL_SIZE - 40) // 2 - 5, 8)
 
+
 def draw_gradient_background(screen, color_start, color_end):
     """Draws a vertical gradient background."""
     for y in range(WINDOW_SIZE[1]):
@@ -60,9 +61,10 @@ def draw_gradient_background(screen, color_start, color_end):
         color = (
             int(color_start[0] * (1 - ratio) + color_end[0] * ratio),
             int(color_start[1] * (1 - ratio) + color_end[1] * ratio),
-            int(color_start[2] * (1 - ratio) + color_end[2] * ratio)
+            int(color_start[2] * (1 - ratio) + color_end[2] * ratio),
         )
         pygame.draw.line(screen, color, (0, y), (WINDOW_SIZE[0], y))
+
 
 def draw_board(board, last_move=None, winning_sequence=None):
     # Draw gradient background
@@ -72,10 +74,7 @@ def draw_board(board, last_move=None, winning_sequence=None):
     for row in range(BOARD_SIZE):
         for col in range(BOARD_SIZE):
             cell_rect = pygame.Rect(
-                MARGIN + col * (CELL_SIZE + MARGIN),
-                MARGIN + row * (CELL_SIZE + MARGIN),
-                CELL_SIZE,
-                CELL_SIZE
+                MARGIN + col * (CELL_SIZE + MARGIN), MARGIN + row * (CELL_SIZE + MARGIN), CELL_SIZE, CELL_SIZE
             )
             pygame.draw.rect(screen, WHITE, cell_rect)
             pygame.draw.rect(screen, BLACK, cell_rect, 1)
@@ -89,10 +88,7 @@ def draw_board(board, last_move=None, winning_sequence=None):
     if last_move:
         row, col = last_move
         highlight_rect = pygame.Rect(
-            MARGIN + col * (CELL_SIZE + MARGIN),
-            MARGIN + row * (CELL_SIZE + MARGIN),
-            CELL_SIZE,
-            CELL_SIZE
+            MARGIN + col * (CELL_SIZE + MARGIN), MARGIN + row * (CELL_SIZE + MARGIN), CELL_SIZE, CELL_SIZE
         )
         pygame.draw.rect(screen, YELLOW, highlight_rect, 5)  # Yellow border
 
@@ -100,26 +96,20 @@ def draw_board(board, last_move=None, winning_sequence=None):
     if winning_sequence:
         for row, col in winning_sequence:
             highlight_rect = pygame.Rect(
-                MARGIN + col * (CELL_SIZE + MARGIN),
-                MARGIN + row * (CELL_SIZE + MARGIN),
-                CELL_SIZE,
-                CELL_SIZE
+                MARGIN + col * (CELL_SIZE + MARGIN), MARGIN + row * (CELL_SIZE + MARGIN), CELL_SIZE, CELL_SIZE
             )
             pygame.draw.rect(screen, GREEN, highlight_rect, 5)  # Green border
 
+
 def draw_X(row, col):
-    position = (
-        MARGIN + col * (CELL_SIZE + MARGIN) + 20,
-        MARGIN + row * (CELL_SIZE + MARGIN) + 20
-    )
+    position = (MARGIN + col * (CELL_SIZE + MARGIN) + 20, MARGIN + row * (CELL_SIZE + MARGIN) + 20)
     screen.blit(X_IMAGE, position)
 
+
 def draw_O(row, col):
-    position = (
-        MARGIN + col * (CELL_SIZE + MARGIN) + 20,
-        MARGIN + row * (CELL_SIZE + MARGIN) + 20
-    )
+    position = (MARGIN + col * (CELL_SIZE + MARGIN) + 20, MARGIN + row * (CELL_SIZE + MARGIN) + 20)
     screen.blit(O_IMAGE, position)
+
 
 def display_message(message, color=BLACK):
     # Draw background rectangle
@@ -129,6 +119,7 @@ def display_message(message, color=BLACK):
     text = FONT.render(message, True, color)
     text_rect = text.get_rect(center=(WINDOW_SIZE[0] // 2, WINDOW_SIZE[1] - 50))
     screen.blit(text, text_rect)
+
 
 def display_end_message(message, color=BLACK):
     # Draw semi-transparent overlay
@@ -140,19 +131,18 @@ def display_end_message(message, color=BLACK):
     text_rect = text.get_rect(center=(WINDOW_SIZE[0] // 2, WINDOW_SIZE[1] // 2))
     screen.blit(text, text_rect)
 
+
 def get_cell_from_mouse(pos):
     x, y = pos
     for row in range(BOARD_SIZE):
         for col in range(BOARD_SIZE):
             cell_rect = pygame.Rect(
-                MARGIN + col * (CELL_SIZE + MARGIN),
-                MARGIN + row * (CELL_SIZE + MARGIN),
-                CELL_SIZE,
-                CELL_SIZE
+                MARGIN + col * (CELL_SIZE + MARGIN), MARGIN + row * (CELL_SIZE + MARGIN), CELL_SIZE, CELL_SIZE
             )
             if cell_rect.collidepoint(x, y):
                 return row, col
     return None, None
+
 
 def ai_move(state, simulations_per_move):
     root_node = TwoPlayersGameMonteCarloTreeSearchNode(state=state)
@@ -161,6 +151,7 @@ def ai_move(state, simulations_per_move):
     if best_node and best_node.parent_action:
         return best_node.parent_action
     return None
+
 
 def play_game_pygame(board_size: int = 5, connect: int = 4, simulations_per_move: int = 10000):
     initial_board_state = np.zeros((board_size, board_size), dtype=int)
@@ -241,6 +232,7 @@ def play_game_pygame(board_size: int = 5, connect: int = 4, simulations_per_move
 
         # Control the frame rate
         clock.tick(30)
+
 
 if __name__ == "__main__":
     play_game_pygame(board_size=5, connect=4, simulations_per_move=20000)
