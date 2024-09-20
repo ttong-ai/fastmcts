@@ -1,9 +1,12 @@
 # main_pygame.py
 
-import pygame
-import sys
 import numpy as np
+import sys
 import time
+try:
+    import pygame
+except ImportError:
+    raise ImportError("Please install pygame using 'pip install pygame' before running this script.")
 
 from pymcts.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
 from pymcts.tree.search import MonteCarloTreeSearch
@@ -27,7 +30,7 @@ WHITE = (250, 250, 250)
 BLACK = (10, 10, 10)
 GREY = (50, 50, 50)
 RED = (240, 30, 0)
-BLUE = (0, 100, 240)
+BLUE = (0, 120, 255)
 YELLOW = (240, 240, 0)
 GREEN = (30, 240, 0)
 
