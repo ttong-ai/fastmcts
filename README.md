@@ -1,66 +1,76 @@
-## pymcts : Python implementation of Monte Carlo Tree Search algorithm
+# FastMCTS: Fast Python Implementation of Monte Carlo Tree Search
 
- 
-Basic python implementation of [Monte Carlo Tree Search](https://int8.io/monte-carlo-tree-search-beginners-guide) (MCTS) intended to run on small game trees. 
- 
+FastMCTS is a high-performance Python library that implements the Monte Carlo Tree Search (MCTS) algorithm with parallel capabilities. Designed for efficiency, it's suitable for both small and large game trees. This implementation is inspired by the [Monte Carlo Tree Search Beginner's Guide](https://int8.io/monte-carlo-tree-search-beginners-guide) and enhanced for speed.
 
-### Installation
+## Features
 
+- Fast, parallel implementation of MCTS
+- Easy-to-use interface
+- Support for two-player zero-sum games
+- Extensible for custom game implementations
+- Includes examples for Tic-Tac-Toe and Connect Four
+- Optimized for performance with parallel processing
+
+## Installation
+
+Install FastMCTS using pip:
+
+```bash
+pip install fastmcts
 ```
-pip install pymcts
-``` 
 
-### Running tic-tac-toe example 
+## Quick Start
 
-to run tic-tac-toe example:
+Here's a simple example of how to use FastMCTS with Tic-Tac-Toe:
 
 ```python
-
 import numpy as np
-from pymcts.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
-from pymcts.tree.search import MonteCarloTreeSearch
-from pymcts.games.tictactoe import TicTacToeGameState
+from fastmcts.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
+from fastmcts.tree.search import MonteCarloTreeSearch
+from fastmcts.games.tictactoe import TicTacToeGameState
 
+# Initialize game state
 state = np.zeros((3, 3))
 initial_board_state = TicTacToeGameState(state=state, next_to_move=1)
 
+# Set up MCTS
 root = TwoPlayersGameMonteCarloTreeSearchNode(state=initial_board_state)
 mcts = MonteCarloTreeSearch(root)
-best_node = mcts.best_action(10000)
 
+# Find the best action (utilizing parallel processing)
+best_node = mcts.best_action_parallel(total_simulation_seconds=1)
 ```
 
+## Using FastMCTS for Your Own Games
 
-### Running MCTS for your own 2 players zero-sum game 
+To use FastMCTS for your own two-player zero-sum game:
 
-If you want to apply MCTS for your own game, its state implementation should derive from  
-`mmctspy.games.common.TwoPlayersGameState` 
+1. Create a new game state class that inherits from `fastmcts.games.common.TwoPlayersGameState`.
+2. Implement the required methods (see `fastmcts.games.tictactoe.TicTacToeGameState` for an example).
+3. Use your custom game state with the MCTS algorithm as shown in the quick start example.
 
-(lookup `mctspy.games.examples.tictactoe.TicTacToeGameState` for inspiration)
+## Example: Connect Four Game Play
 
-### Example Game Play
+Here's an example of how to use FastMCTS to play Connect Four:
 
 ```python
 import numpy as np
-from pymcts.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
-from pymcts.tree.search import MonteCarloTreeSearch
-from pymcts.games.connect4 import Connect4GameState
+from fastmcts.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
+from fastmcts.tree.search import MonteCarloTreeSearch
+from fastmcts.games.connect4 import Connect4GameState
 
-# define inital state
+# Initialize game state
 state = np.zeros((7, 7))
 board_state = Connect4GameState(
     state=state, next_to_move=np.random.choice([-1, 1]), win=4)
 
-# link pieces to icons
+# Define piece representations
 pieces = {0: " ", 1: "X", -1: "O"}
 
-
-# print a single row of the board
+# Helper functions to display the board
 def stringify(row):
     return " " + " | ".join(map(lambda x: pieces[int(x)], row)) + " "
 
-
-# display the whole board
 def display(board):
     board = board.copy().T[::-1]
     for row in board[:-1]:
@@ -69,21 +79,30 @@ def display(board):
     print(stringify(board[-1]))
     print()
 
-
+# Main game loop
 display(board_state.board)
-# keep playing until game terminates
 while board_state.game_result is None:
-    # calculate best move
+    # Calculate best move using parallel processing
     root = TwoPlayersGameMonteCarloTreeSearchNode(state=board_state)
     mcts = MonteCarloTreeSearch(root)
-    best_node = mcts.best_action(total_simulation_seconds=1)
+    best_node = mcts.best_action_parallel(total_simulation_seconds=1)
 
-    # update board
+    # Update and display board
     board_state = best_node.state
-    # display board
     display(board_state.board)
 
-# print result
-print(pieces[board_state.game_result])
-
+# Print result
+print(f"Winner: {pieces[board_state.game_result]}")
 ```
+
+## Performance
+
+FastMCTS leverages parallel processing to significantly speed up the Monte Carlo Tree Search. This makes it suitable for more complex games and larger search spaces compared to traditional sequential MCTS implementations.
+
+## Contributing
+
+Contributions to FastMCTS are welcome! Please feel free to submit pull requests, create issues or suggest improvements. We're particularly interested in optimizations and extensions that can further improve performance.
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for details.

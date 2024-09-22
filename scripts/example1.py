@@ -1,9 +1,9 @@
 import numpy as np
 import time
 
-from pymcts.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
-from pymcts.tree.search import MonteCarloTreeSearch
-from pymcts.games.tictactoe import TicTacToeGameState
+from fastmcts.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
+from fastmcts.tree.search import MonteCarloTreeSearch
+from fastmcts.games.tictactoe import TicTacToeGameState
 
 
 def print_board(board):

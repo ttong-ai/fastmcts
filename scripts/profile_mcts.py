@@ -3,9 +3,9 @@ import cProfile
 import numpy as np
 import pstats
 
-from pymcts.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
-from pymcts.tree.search import MonteCarloTreeSearch
-from pymcts.games.tictactoe2 import TicTacToeGameState
+from fastmcts.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
+from fastmcts.tree.search import MonteCarloTreeSearch
+from fastmcts.games.tictactoe2 import TicTacToeGameState
 
 
 def run_mcts():

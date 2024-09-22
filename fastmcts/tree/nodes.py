@@ -6,7 +6,7 @@ from typing import List, Optional, Dict, Any
 import numpy as np
 import random
 
-from pymcts.games.common import (
+from fastmcts.games.common import (
     AbstractGameState,
     AbstractGameAction,
     TwoPlayersAbstractGameState,
@@ -14,7 +14,7 @@ from pymcts.games.common import (
     GeneralPlayerAbstractGameState,
     GeneralPlayerAbstractGameAction,
 )
-from pymcts.utils import _pickle_method, _unpickle_method
+from fastmcts.utils import _pickle_method, _unpickle_method
 
 
 class MonteCarloTreeSearchNode(ABC):

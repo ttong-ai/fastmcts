@@ -1,9 +1,9 @@
 import numpy as np
 
 
-from pymcts.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
-from pymcts.tree.search import MonteCarloTreeSearch
-from pymcts.games.tictactoe import TicTacToeGameState
+from fastmcts.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
+from fastmcts.tree.search import MonteCarloTreeSearch
+from fastmcts.games.tictactoe import TicTacToeGameState
 
 
 def test_if_initial_state_no_result():

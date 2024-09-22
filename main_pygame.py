@@ -8,9 +8,9 @@ try:
 except ImportError:
     raise ImportError("Please install pygame using 'pip install pygame' before running this script.")
 
-from pymcts.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
-from pymcts.tree.search import MonteCarloTreeSearch
-from pymcts.games.tictactoe2 import TicTacToeGameState, TicTacToeMove
+from fastmcts.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
+from fastmcts.tree.search import MonteCarloTreeSearch
+from fastmcts.games.tictactoe2 import TicTacToeGameState, TicTacToeMove
 
 # Initialize Pygame
 pygame.init()

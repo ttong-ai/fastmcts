@@ -1,5 +1,5 @@
 import numpy as np
-from pymcts.games.common import TwoPlayersAbstractGameState, AbstractGameAction
+from fastmcts.games.common import TwoPlayersAbstractGameState, AbstractGameAction
 
 
 class TicTacToeMove(AbstractGameAction):

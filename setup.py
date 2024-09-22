@@ -3,19 +3,22 @@ from setuptools import setup, find_packages
 with open("README.md") as readme_file:
     readme = readme_file.read()
 
-requirements = ["numpy>=2.0"]
+requirements = ["numpy>=1.21,<2.0"]
 
 setup(
     author="Tony Tong",
-    description="Python implementation of monte carlo tree search",
+    description="Fast Python implementation of Monte Carlo Tree Search with parallel capabilities",
     install_requires=requirements,
     long_description=readme,
     long_description_content_type="text/markdown",
     include_package_data=True,
-    keywords="mcts monte carlo tree search",
-    name="pymcts",
+    keywords="mcts monte carlo tree search parallel fast",
+    name="fastmcts",
     python_requires=">=3.8",
-    packages=find_packages(),
+    packages=find_packages(exclude=["tests", "scripts"]),
+    extras_require={
+        "dev": ["pytest", "black"],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.8",
@@ -25,6 +28,6 @@ setup(
         "Operating System :: OS Independent",
     ],
     license="MIT",
-    url="https://github.com/ttong-ai/pymcts",
+    url="https://github.com/ttong-ai/fastmcts",  # Updated URL
     version="0.3.0",
 )

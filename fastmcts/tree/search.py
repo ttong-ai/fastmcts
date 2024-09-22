@@ -4,9 +4,9 @@ import multiprocessing as mp
 import time
 from typing import Optional, List, Any, Tuple
 
-from pymcts.games.common import TwoPlayersAbstractGameState
-from pymcts.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
-from pymcts.utils import _pickle_method, _unpickle_method  # Import pickling utilities
+from fastmcts.games.common import TwoPlayersAbstractGameState
+from fastmcts.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
+from fastmcts.utils import _pickle_method, _unpickle_method  # Import pickling utilities
 
 
 def simulate_rollout(state: TwoPlayersAbstractGameState) -> Any:

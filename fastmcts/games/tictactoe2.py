@@ -2,7 +2,7 @@
 from typing import List, Optional
 import numpy as np
 
-from pymcts.games.common import (
+from fastmcts.games.common import (
     PlayerRelation,
     GeneralPlayerAbstractGameAction,
     GeneralPlayerAbstractGameState,
