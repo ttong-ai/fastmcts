@@ -1,13 +1,119 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
 *.py[cod]
-common/*.pyc
-mnist.py
-output/
-output_test/
-data/
-.cache
-logs/
-*.ipynb
-__pycache__
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
 build/
+develop-eggs/
 dist/
-mctspy.egg-info/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# pytest cache
+.pytest_cache/
+cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Django stuff
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff
+instance/
+.webassets-cache
+
+# Scrapy stuff
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# IDE / Editor-specific files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Windows system files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Backup files
+*.bak
+*.swp
+*.swo
+*.orig
+
+# Package manager files
+*.lock
+yarn-error.log
+npm-debug.log*
+
+# Test results
+test-results/
+
+# Profiling data
+*.prof
+
+# Custom ignores
+# Add anything else you want to ignore below
