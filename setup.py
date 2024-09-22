@@ -1,3 +1,4 @@
+from fastmcts import __version__
 from setuptools import setup, find_packages
 
 with open("README.md") as readme_file:
@@ -29,5 +30,5 @@ setup(
     ],
     license="MIT",
     url="https://github.com/ttong-ai/fastmcts",  # Updated URL
-    version="0.3.0",
+    version=__version__,
 )
